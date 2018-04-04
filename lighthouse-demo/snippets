@@ -1,0 +1,88 @@
+<!-- Register the service worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => {
+        console.log('Service worker registered! 😎', reg);
+      })
+      .catch(err => {
+        console.log('😥 Service worker registration failed: ', err);
+      });
+  });
+}
+</script>
+
+
+// write the service worker
+
+const cacheName = 'cache-v1';
+const precacheResources = [
+  '/',
+  'index.html',
+  'styles/main.css',
+  'images/space1.jpg',
+  'images/space2.jpg',
+  'images/space3.jpg'
+];
+
+self.addEventListener('install', event => {
+  console.log('Service worker install event!');
+  event.waitUntil(
+    caches.open(cacheName)
+      .then(cache => {
+        return cache.addAll(precacheResources);
+      })
+  );
+});
+
+self.addEventListener('activate', event => {
+  console.log('Service worker activate event!');
+});
+
+self.addEventListener('fetch', event => {
+  console.log('Fetch intercepted for:', event.request.url);
+  event.respondWith(caches.match(event.request)
+    .then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request);
+      })
+    );
+});
+
+
+// manifest.json
+
+{
+  "name": "Space Missions",
+  "short_name": "Space Missions",
+  "lang": "en-US",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "theme_color": "#FF9800",
+  "background_color": "#FF9800",
+  "icons": [
+    {
+      "src": "images/touch/icon-128x128.png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "images/touch/icon-192x192.png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/touch/icon-256x256.png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "images/touch/icon-384x384.png",
+      "sizes": "384x384"
+    },
+    {
+      "src": "images/touch/icon-512x512.png",
+      "sizes": "512x512"
+    }
+  ]
+}
